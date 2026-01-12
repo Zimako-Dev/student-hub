@@ -3,6 +3,7 @@ import { isAuthenticated, getCurrentUser } from './services/api.js';
 import LoginPage from './pages/LoginPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import StudentDashboard from './pages/StudentDashboard.jsx';
+import StudentProfilePage from './pages/StudentProfilePage.jsx';
 import StudentsPage from './pages/StudentsPage.jsx';
 import CoursesPage from './pages/CoursesPage.jsx';
 import RegistrationsPage from './pages/RegistrationsPage.jsx';
@@ -29,6 +30,9 @@ function App() {
 
   // Quick action triggers
   const [quickAction, setQuickAction] = useState(null);
+
+  // Student profile view state
+  const [viewingStudentId, setViewingStudentId] = useState(null);
 
   // Check authentication status on mount
   useEffect(() => {
@@ -93,6 +97,18 @@ function App() {
     setQuickAction(null);
   };
 
+  // Handle viewing a student profile (clicking on student name)
+  const handleViewStudentProfile = (studentId) => {
+    setViewingStudentId(studentId);
+    setCurrentPage('student-profile');
+  };
+
+  // Handle going back from student profile
+  const handleBackFromProfile = () => {
+    setViewingStudentId(null);
+    setCurrentPage('students');
+  };
+
   // Render current page based on state and user role (RBAC)
   const renderPage = () => {
     // Student role - limited access
@@ -110,7 +126,9 @@ function App() {
       case 'dashboard':
         return <Dashboard onQuickAction={handleQuickAction} />;
       case 'students':
-        return <StudentsPage quickAction={quickAction} onActionComplete={clearQuickAction} />;
+        return <StudentsPage quickAction={quickAction} onActionComplete={clearQuickAction} onViewProfile={handleViewStudentProfile} />;
+      case 'student-profile':
+        return <StudentProfilePage studentId={viewingStudentId} onBack={handleBackFromProfile} userRole={userRole} />;
       case 'courses':
         return <CoursesPage quickAction={quickAction} onActionComplete={clearQuickAction} />;
       case 'registrations':
@@ -143,7 +161,7 @@ function App() {
             <span className="menu-icon"></span>
           </button>
           <h1 className="page-title">
-            {currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
+            {currentPage === 'student-profile' ? 'Student Profile' : currentPage.charAt(0).toUpperCase() + currentPage.slice(1)}
           </h1>
         </header>
         <div className="page-content">

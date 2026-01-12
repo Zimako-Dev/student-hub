@@ -77,11 +77,33 @@
   background-color: #D32F2F;
 }
 
-/* Statistics Grid */
+/* Statistics Grid - 3 cards side by side */
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--spacing-lg);
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: nowrap;
+}
+
+.stats-grid .stat-card {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .stats-grid {
+    flex-wrap: wrap;
+  }
+  
+  .stats-grid .stat-card {
+    flex: 1 1 calc(50% - var(--spacing-md));
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 500px) {
+  .stats-grid .stat-card {
+    flex: 1 1 100%;
+  }
 }
 
 .stat-card {

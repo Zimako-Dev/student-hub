@@ -186,6 +186,20 @@
   gap: var(--spacing-sm);
 }
 
+.student-name-link {
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.student-name-link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 .avatar {
   width: 36px;
   height: 36px;

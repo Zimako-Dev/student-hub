@@ -10,7 +10,7 @@ import '../styles/FilterControls.css';
  * Students Management Page
  * CRUD operations for student records
  */
-function StudentsPage({ quickAction, onActionComplete }) {
+function StudentsPage({ quickAction, onActionComplete, onViewProfile }) {
   // State management
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -464,7 +464,13 @@ function StudentsPage({ quickAction, onActionComplete }) {
                   <td className="id-cell">{student.student_id || '-'}</td>
                   <td className="name-cell">
                     <div className="avatar">{student.first_name?.[0]}{student.last_name?.[0]}</div>
-                    <span>{student.first_name} {student.last_name}</span>
+                    <span 
+                      className="student-name-link"
+                      onClick={() => onViewProfile && onViewProfile(student.id)}
+                      title="Click to view profile"
+                    >
+                      {student.first_name} {student.last_name}
+                    </span>
                   </td>
                   <td>{student.email}</td>
                   <td>{student.course_of_study || '-'}</td>

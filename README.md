@@ -46,7 +46,15 @@ A comprehensive Student Registration and Academic Management System built with R
   - Status (Active, Pending, etc.)
   - PDF download option using jsPDF
 
-### 📊 Reports
+### � Student Profile Page (Both Roles)
+- **Dynamic Profile Generation** - PHP functions with GET variables
+- **Personal Details** - Full student information display
+- **Enrolled Courses** - List of registered courses with credits
+- **Academic Status** - Uses PHP constants for status indicators:
+  - Active, Inactive, Graduated, Suspended, On Leave, Academic Probation
+- **Click on Student Name** - Opens detailed profile page
+
+### �📊 Reports
 - **Profile Summary Report** - PHP-generated printable HTML/PDF report
 - **Registration Confirmation Slip** - Official document with verification code
 - **PDF Export** - Download reports as PDF
