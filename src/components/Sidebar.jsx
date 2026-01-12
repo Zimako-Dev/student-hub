@@ -4,15 +4,23 @@ import '../styles/Sidebar.css';
 /**
  * Sidebar Navigation Component
  * Displays navigation links and user actions
+ * Supports RBAC - different menus for admin and student roles
  */
-function Sidebar({ currentPage, onNavigate, onLogout, isOpen, onToggle }) {
-  // Navigation items configuration
-  const navItems = [
+function Sidebar({ currentPage, onNavigate, onLogout, isOpen, onToggle, userRole, currentUser }) {
+  // Navigation items based on user role (RBAC)
+  const adminNavItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'students', label: 'Students', icon: '👨‍🎓' },
     { id: 'courses', label: 'Courses', icon: '📚' },
     { id: 'registrations', label: 'Registrations', icon: '📝' },
   ];
+
+  const studentNavItems = [
+    { id: 'dashboard', label: 'My Dashboard', icon: '🏠' },
+  ];
+
+  // Select nav items based on role
+  const navItems = userRole === 'student' ? studentNavItems : adminNavItems;
 
   return (
     <>
@@ -57,10 +65,16 @@ function Sidebar({ currentPage, onNavigate, onLogout, isOpen, onToggle }) {
         {/* Bottom Section */}
         <div className="sidebar-footer">
           <div className="user-info">
-            <div className="user-avatar">A</div>
+            <div className="user-avatar">
+              {currentUser?.email?.[0]?.toUpperCase() || 'U'}
+            </div>
             <div className="user-details">
-              <span className="user-name">Admin User</span>
-              <span className="user-role">Administrator</span>
+              <span className="user-name">
+                {currentUser?.email?.split('@')[0] || 'User'}
+              </span>
+              <span className={`user-role ${userRole}`}>
+                {userRole === 'admin' ? '👑 Administrator' : '🎓 Student'}
+              </span>
             </div>
           </div>
           <button className="logout-btn" onClick={onLogout}>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { isAuthenticated } from './services/api.js';
+import { isAuthenticated, getCurrentUser } from './services/api.js';
 import LoginPage from './pages/LoginPage.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import StudentDashboard from './pages/StudentDashboard.jsx';
 import StudentsPage from './pages/StudentsPage.jsx';
 import CoursesPage from './pages/CoursesPage.jsx';
 import RegistrationsPage from './pages/RegistrationsPage.jsx';
@@ -16,6 +17,10 @@ function App() {
   // Authentication state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
+  // User role for RBAC (Role-Based Access Control)
+  const [userRole, setUserRole] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  
   // Current active page
   const [currentPage, setCurrentPage] = useState('dashboard');
   
@@ -27,19 +32,32 @@ function App() {
 
   // Check authentication status on mount
   useEffect(() => {
-    setIsLoggedIn(isAuthenticated());
+    const authenticated = isAuthenticated();
+    setIsLoggedIn(authenticated);
+    
+    if (authenticated) {
+      const user = getCurrentUser();
+      setCurrentUser(user);
+      setUserRole(user?.role || 'student');
+    }
   }, []);
 
   // Handle successful login
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (user) => {
     setIsLoggedIn(true);
+    setCurrentUser(user);
+    setUserRole(user?.role || 'student');
     setCurrentPage('dashboard');
   };
 
   // Handle logout
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setCurrentUser(null);
+    setUserRole(null);
     setCurrentPage('dashboard');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
   };
 
   // Toggle sidebar
@@ -75,8 +93,19 @@ function App() {
     setQuickAction(null);
   };
 
-  // Render current page based on state
+  // Render current page based on state and user role (RBAC)
   const renderPage = () => {
+    // Student role - limited access
+    if (userRole === 'student') {
+      switch (currentPage) {
+        case 'dashboard':
+          return <StudentDashboard />;
+        default:
+          return <StudentDashboard />;
+      }
+    }
+    
+    // Admin role - full access
     switch (currentPage) {
       case 'dashboard':
         return <Dashboard onQuickAction={handleQuickAction} />;
@@ -105,6 +134,8 @@ function App() {
         onLogout={handleLogout}
         isOpen={sidebarOpen}
         onToggle={toggleSidebar}
+        userRole={userRole}
+        currentUser={currentUser}
       />
       <main className={`main-content ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
         <header className="top-header">

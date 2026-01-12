@@ -83,6 +83,22 @@ export function isAuthenticated() {
   return !!localStorage.getItem('authToken');
 }
 
+/**
+ * Get current logged-in user data
+ * @returns {object|null} - User data or null
+ */
+export function getCurrentUser() {
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      return JSON.parse(userStr);
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+}
+
 // ==================== Students API ====================
 
 /**

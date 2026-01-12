@@ -225,6 +225,71 @@
   text-align: center;
 }
 
+/* Demo Credentials Section */
+.demo-credentials {
+  margin-top: 24px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.demo-hint-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.credentials-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.credential-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.credential-card.admin {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.credential-card.student {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.credential-role {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.credential-email {
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+.credential-password {
+  font-size: 0.75rem;
+  opacity: 0.85;
+}
+
+.demo-note {
+  font-size: 0.75rem;
+  color: #6c757d;
+  text-align: center;
+  margin: 0;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .login-container {

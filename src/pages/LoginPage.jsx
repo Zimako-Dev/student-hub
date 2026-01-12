@@ -66,15 +66,23 @@ function LoginPage({ onLoginSuccess }) {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
 
-      // Notify parent of successful login
-      onLoginSuccess();
+      // Notify parent of successful login with user data
+      onLoginSuccess(response.user);
     } catch (err) {
       // For demo purposes, allow login with any credentials
-      // In production, remove this and handle the actual error
+      // Determine role based on email domain for demo
       console.log('API not available, using demo mode');
+      
+      // Demo: student emails get student role, admin email gets admin role
+      const isStudent = email.includes('@example.com') && !email.includes('admin');
+      const demoUser = { 
+        email, 
+        role: isStudent ? 'student' : 'admin' 
+      };
+      
       localStorage.setItem('authToken', 'demo-token');
-      localStorage.setItem('user', JSON.stringify({ email, role: 'admin' }));
-      onLoginSuccess();
+      localStorage.setItem('user', JSON.stringify(demoUser));
+      onLoginSuccess(demoUser);
     } finally {
       setLoading(false);
     }
@@ -188,9 +196,24 @@ function LoginPage({ onLoginSuccess }) {
               </button>
             </form>
 
-            <p className="demo-hint">
-              💡 Demo: Enter any email and password (min 6 chars) to login
-            </p>
+            <div className="demo-credentials">
+              <p className="demo-hint-title">💡 Demo Login Credentials:</p>
+              <div className="credentials-grid">
+                <div className="credential-card admin">
+                  <span className="credential-role">👑 Admin</span>
+                  <span className="credential-email">admin@academix.com</span>
+                  <span className="credential-password">Password: admin123</span>
+                </div>
+                <div className="credential-card student">
+                  <span className="credential-role">🎓 Student</span>
+                  <span className="credential-email">john.doe@example.com</span>
+                  <span className="credential-password">Password: student123</span>
+                </div>
+              </div>
+              <p className="demo-note">
+                Other students: jane.smith@example.com, mike.johnson@example.com
+              </p>
+            </div>
           </div>
         </div>
       </div>

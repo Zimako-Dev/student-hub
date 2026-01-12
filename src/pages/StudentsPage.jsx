@@ -4,6 +4,7 @@ import Modal, { ConfirmModal } from '../components/Modal.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/DataPage.css';
 import '../styles/MaterialForm.css';
+import '../styles/FilterControls.css';
 
 /**
  * Students Management Page
@@ -37,8 +38,12 @@ function StudentsPage({ quickAction, onActionComplete }) {
   const [formErrors, setFormErrors] = useState({});
   const [formLoading, setFormLoading] = useState(false);
 
-  // Search state
+  // Search and filter state
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortField, setSortField] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('desc');
+  const [filterCourse, setFilterCourse] = useState('');
+  const [filterYear, setFilterYear] = useState('');
 
   // Fetch students on mount
   useEffect(() => {
@@ -72,7 +77,12 @@ function StudentsPage({ quickAction, onActionComplete }) {
 
     try {
       const data = await getStudents();
-      setStudents(Array.isArray(data) ? data : data.data || []);
+      // Handle new API response structure with students array
+      if (data.students) {
+        setStudents(data.students);
+      } else {
+        setStudents(Array.isArray(data) ? data : data.data || []);
+      }
     } catch (err) {
       // Demo data if API not available
       setStudents([
@@ -158,6 +168,28 @@ function StudentsPage({ quickAction, onActionComplete }) {
   };
 
   /**
+   * Handle column sorting
+   */
+  const handleSort = (field) => {
+    if (sortField === field) {
+      // Toggle sort order if same field
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // New field, default to ascending
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  /**
+   * Get sort indicator for column header
+   */
+  const getSortIndicator = (field) => {
+    if (sortField !== field) return '⇅';
+    return sortOrder === 'asc' ? '↑' : '↓';
+  };
+
+  /**
    * Open form modal for adding new student
    */
   const handleAddStudent = () => {
@@ -199,6 +231,7 @@ function StudentsPage({ quickAction, onActionComplete }) {
 
   /**
    * Handle form submission
+   * Updates reflect in real-time without full page refresh
    */
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -210,27 +243,55 @@ function StudentsPage({ quickAction, onActionComplete }) {
 
     try {
       if (editingStudent) {
-        await updateStudent(editingStudent.id, formData);
-        setSuccessMessage('Student updated successfully!');
+        // Update existing student
+        const response = await updateStudent(editingStudent.id, formData);
+        
+        // Real-time update: Replace student in array with updated data from server
+        if (response && response.student) {
+          setStudents((prev) =>
+            prev.map((s) => (s.id === editingStudent.id ? response.student : s))
+          );
+        } else {
+          // Fallback: use form data if server doesn't return student
+          setStudents((prev) =>
+            prev.map((s) => (s.id === editingStudent.id ? { ...s, ...formData } : s))
+          );
+        }
+        
+        setSuccessMessage('✓ Student information updated successfully!');
       } else {
-        await createStudent(formData);
-        setSuccessMessage('Student added successfully!');
+        // Create new student
+        const response = await createStudent(formData);
+        
+        // Real-time update: Add new student to array
+        if (response && response.id) {
+          const newStudent = { ...formData, id: response.id };
+          setStudents((prev) => [newStudent, ...prev]);
+        }
+        
+        setSuccessMessage('✓ New student registered successfully!');
       }
+      
       setIsFormModalOpen(false);
-      fetchStudents();
     } catch (err) {
-      // Demo mode: simulate success
-      if (editingStudent) {
-        setStudents((prev) =>
-          prev.map((s) => (s.id === editingStudent.id ? { ...s, ...formData } : s))
-        );
-        setSuccessMessage('Student updated successfully!');
+      // Handle validation errors from backend
+      if (err.errors) {
+        setFormErrors(err.errors);
+        setError(err.message || 'Validation failed. Please check your inputs.');
       } else {
-        const newStudent = { ...formData, id: Date.now() };
-        setStudents((prev) => [...prev, newStudent]);
-        setSuccessMessage('Student added successfully!');
+        // Demo mode fallback: simulate success
+        if (editingStudent) {
+          setStudents((prev) =>
+            prev.map((s) => (s.id === editingStudent.id ? { ...s, ...formData } : s))
+          );
+          setSuccessMessage('✓ Student updated successfully! (Demo Mode)');
+        } else {
+          const newStudent = { ...formData, id: Date.now() };
+          setStudents((prev) => [newStudent, ...prev]);
+          setSuccessMessage('✓ Student added successfully! (Demo Mode)');
+        }
+        setIsFormModalOpen(false);
       }
-      setIsFormModalOpen(false);
     } finally {
       setFormLoading(false);
     }
@@ -245,34 +306,81 @@ function StudentsPage({ quickAction, onActionComplete }) {
   };
 
   /**
-   * Handle student deletion
+   * Handle student deletion with confirmation
+   * Removes student from UI in real-time
    */
   const handleDeleteConfirm = async () => {
     if (!studentToDelete) return;
 
+    setIsDeleteModalOpen(false);
+
     try {
-      await deleteStudent(studentToDelete.id);
-      setSuccessMessage('Student deleted successfully!');
-      fetchStudents();
-    } catch (err) {
-      // Demo mode: simulate deletion
+      const response = await deleteStudent(studentToDelete.id);
+      
+      // Real-time removal: Filter out deleted student from array
       setStudents((prev) => prev.filter((s) => s.id !== studentToDelete.id));
-      setSuccessMessage('Student deleted successfully!');
+      
+      // Show success message with student info
+      const studentName = `${studentToDelete.first_name} ${studentToDelete.last_name}`;
+      setSuccessMessage(`✓ Student "${studentName}" deleted successfully and logged for recovery tracking.`);
+      
+    } catch (err) {
+      // Handle errors
+      if (err.message) {
+        setError(err.message);
+      } else {
+        // Demo mode fallback: simulate deletion
+        setStudents((prev) => prev.filter((s) => s.id !== studentToDelete.id));
+        const studentName = `${studentToDelete.first_name} ${studentToDelete.last_name}`;
+        setSuccessMessage(`✓ Student "${studentName}" deleted successfully! (Demo Mode)`);
+      }
+    } finally {
+      setStudentToDelete(null);
     }
-    setStudentToDelete(null);
   };
 
   /**
-   * Filter students based on search term
+   * Filter and sort students using JavaScript array methods
    */
-  const filteredStudents = students.filter((student) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      student.first_name?.toLowerCase().includes(searchLower) ||
-      student.last_name?.toLowerCase().includes(searchLower) ||
-      student.email?.toLowerCase().includes(searchLower)
-    );
-  });
+  const filteredStudents = students
+    .filter((student) => {
+      // Search filter
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = !searchTerm || (
+        student.first_name?.toLowerCase().includes(searchLower) ||
+        student.last_name?.toLowerCase().includes(searchLower) ||
+        student.email?.toLowerCase().includes(searchLower) ||
+        student.student_id?.toLowerCase().includes(searchLower)
+      );
+
+      // Course filter
+      const matchesCourse = !filterCourse || 
+        student.course_of_study?.toLowerCase().includes(filterCourse.toLowerCase());
+
+      // Year filter
+      const matchesYear = !filterYear || 
+        student.enrollment_date?.startsWith(filterYear);
+
+      return matchesSearch && matchesCourse && matchesYear;
+    })
+    .sort((a, b) => {
+      // JavaScript array sorting logic
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+
+      // Handle null/undefined values
+      if (aValue === null || aValue === undefined) aValue = '';
+      if (bValue === null || bValue === undefined) bValue = '';
+
+      // Convert to lowercase for string comparison
+      if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+      if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+
+      // Compare values
+      if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
 
   // Loading state
   if (loading) {
@@ -341,7 +449,7 @@ function StudentsPage({ quickAction, onActionComplete }) {
           <tbody>
             {filteredStudents.length === 0 ? (
               <tr>
-                <td colSpan="6" className="empty-state">
+                <td colSpan="7" className="empty-state">
                   <div className="empty-content">
                     <span className="empty-icon">👨‍🎓</span>
                     <p>No students found</p>
@@ -353,13 +461,14 @@ function StudentsPage({ quickAction, onActionComplete }) {
               filteredStudents.map((student) => (
                 <tr key={student.id}>
                   <td className="id-cell">{student.id}</td>
+                  <td className="id-cell">{student.student_id || '-'}</td>
                   <td className="name-cell">
                     <div className="avatar">{student.first_name?.[0]}{student.last_name?.[0]}</div>
                     <span>{student.first_name} {student.last_name}</span>
                   </td>
                   <td>{student.email}</td>
-                  <td>{student.phone || '-'}</td>
-                  <td>{student.date_of_birth || '-'}</td>
+                  <td>{student.course_of_study || '-'}</td>
+                  <td>{student.enrollment_date || '-'}</td>
                   <td className="actions-cell">
                     <button
                       className="action-btn edit-btn"
@@ -628,14 +737,39 @@ function StudentsPage({ quickAction, onActionComplete }) {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal with JavaScript Confirmation */}
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteConfirm}
-        title="Delete Student"
-        message={`Are you sure you want to delete ${studentToDelete?.first_name} ${studentToDelete?.last_name}? This action cannot be undone.`}
-        confirmText="Delete"
+        title="⚠️ Delete Student Record"
+        message={
+          studentToDelete ? (
+            <div>
+              <p style={{ marginBottom: '12px', fontWeight: '600' }}>
+                Are you sure you want to delete this student?
+              </p>
+              <div style={{ 
+                background: '#f3f4f6', 
+                padding: '12px', 
+                borderRadius: '8px', 
+                marginBottom: '12px',
+                fontSize: '0.9rem'
+              }}>
+                <p><strong>Name:</strong> {studentToDelete.first_name} {studentToDelete.last_name}</p>
+                <p><strong>Student ID:</strong> {studentToDelete.student_id}</p>
+                <p><strong>Email:</strong> {studentToDelete.email}</p>
+                <p><strong>Course:</strong> {studentToDelete.course_of_study}</p>
+              </div>
+              <p style={{ color: '#ef4444', fontSize: '0.9rem' }}>
+                ⚠️ This action will permanently delete the student record from the database.
+                The record will be logged for recovery tracking.
+              </p>
+            </div>
+          ) : 'Are you sure you want to delete this student?'
+        }
+        confirmText="🗑️ Delete Student"
+        cancelText="Cancel"
         confirmType="danger"
       />
     </div>

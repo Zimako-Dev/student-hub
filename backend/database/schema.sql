@@ -68,6 +68,16 @@ INSERT INTO users (email, password, role) VALUES
 ('admin@academix.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin')
 ON DUPLICATE KEY UPDATE email=email;
 
+-- Insert student user accounts (password: student123 for all)
+-- These link to the students table via email
+INSERT INTO users (email, password, role) VALUES 
+('john.doe@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('jane.smith@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('mike.johnson@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('sarah.williams@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student'),
+('david.brown@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student')
+ON DUPLICATE KEY UPDATE email=email;
+
 -- Insert sample students
 INSERT INTO students (student_id, first_name, last_name, email, phone, date_of_birth, address, course_of_study, enrollment_date) VALUES
 ('STU000001', 'John', 'Doe', 'john.doe@example.com', '555-0101', '2000-01-15', '123 Main St, Springfield', 'Computer Science', '2023-09-01'),
