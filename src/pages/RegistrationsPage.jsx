@@ -9,7 +9,7 @@ import '../styles/RegistrationsPage.css';
  * Registrations Page
  * Register students for courses
  */
-function RegistrationsPage() {
+function RegistrationsPage({ quickAction, onActionComplete }) {
   // State management
   const [students, setStudents] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -41,6 +41,16 @@ function RegistrationsPage() {
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
+
+  // Handle quick action from Dashboard
+  useEffect(() => {
+    if (quickAction === 'new-registration') {
+      handleNewRegistration();
+      if (onActionComplete) {
+        onActionComplete();
+      }
+    }
+  }, [quickAction]);
 
   /**
    * Fetch all required data

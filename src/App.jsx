@@ -22,6 +22,9 @@ function App() {
   // Sidebar collapsed state for mobile
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Quick action triggers
+  const [quickAction, setQuickAction] = useState(null);
+
   // Check authentication status on mount
   useEffect(() => {
     setIsLoggedIn(isAuthenticated());
@@ -44,19 +47,47 @@ function App() {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Handle quick actions from Dashboard
+  const handleQuickAction = (action) => {
+    setQuickAction(action);
+    
+    // Navigate to appropriate page
+    switch (action) {
+      case 'add-student':
+        setCurrentPage('students');
+        break;
+      case 'create-course':
+        setCurrentPage('courses');
+        break;
+      case 'new-registration':
+        setCurrentPage('registrations');
+        break;
+      case 'view-reports':
+        // For now, stay on dashboard (reports feature not implemented)
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Clear quick action after it's been handled
+  const clearQuickAction = () => {
+    setQuickAction(null);
+  };
+
   // Render current page based on state
   const renderPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard onQuickAction={handleQuickAction} />;
       case 'students':
-        return <StudentsPage />;
+        return <StudentsPage quickAction={quickAction} onActionComplete={clearQuickAction} />;
       case 'courses':
-        return <CoursesPage />;
+        return <CoursesPage quickAction={quickAction} onActionComplete={clearQuickAction} />;
       case 'registrations':
-        return <RegistrationsPage />;
+        return <RegistrationsPage quickAction={quickAction} onActionComplete={clearQuickAction} />;
       default:
-        return <Dashboard />;
+        return <Dashboard onQuickAction={handleQuickAction} />;
     }
   };
 

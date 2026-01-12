@@ -19,16 +19,20 @@ CREATE TABLE IF NOT EXISTS users (
 -- Students table
 CREATE TABLE IF NOT EXISTS students (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20) NOT NULL UNIQUE,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     phone VARCHAR(20),
     date_of_birth DATE,
     address TEXT,
+    course_of_study VARCHAR(255),
+    enrollment_date DATE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_email (email),
-    INDEX idx_name (first_name, last_name)
+    INDEX idx_name (first_name, last_name),
+    INDEX idx_student_id (student_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Courses table
@@ -65,12 +69,12 @@ INSERT INTO users (email, password, role) VALUES
 ON DUPLICATE KEY UPDATE email=email;
 
 -- Insert sample students
-INSERT INTO students (first_name, last_name, email, phone, date_of_birth, address) VALUES
-('John', 'Doe', 'john.doe@example.com', '555-0101', '2000-01-15', '123 Main St, Springfield'),
-('Jane', 'Smith', 'jane.smith@example.com', '555-0102', '1999-05-20', '456 Oak Ave, Riverside'),
-('Mike', 'Johnson', 'mike.johnson@example.com', '555-0103', '2001-03-10', '789 Pine Rd, Lakeside'),
-('Sarah', 'Williams', 'sarah.williams@example.com', '555-0104', '2000-07-22', '321 Elm St, Hilltown'),
-('David', 'Brown', 'david.brown@example.com', '555-0105', '1998-11-30', '654 Maple Dr, Greenfield')
+INSERT INTO students (student_id, first_name, last_name, email, phone, date_of_birth, address, course_of_study, enrollment_date) VALUES
+('STU000001', 'John', 'Doe', 'john.doe@example.com', '555-0101', '2000-01-15', '123 Main St, Springfield', 'Computer Science', '2023-09-01'),
+('STU000002', 'Jane', 'Smith', 'jane.smith@example.com', '555-0102', '1999-05-20', '456 Oak Ave, Riverside', 'Business Administration', '2023-09-01'),
+('STU000003', 'Mike', 'Johnson', 'mike.johnson@example.com', '555-0103', '2001-03-10', '789 Pine Rd, Lakeside', 'Engineering', '2024-01-15'),
+('STU000004', 'Sarah', 'Williams', 'sarah.williams@example.com', '555-0104', '2000-07-22', '321 Elm St, Hilltown', 'Mathematics', '2024-01-15'),
+('STU000005', 'David', 'Brown', 'david.brown@example.com', '555-0105', '1998-11-30', '654 Maple Dr, Greenfield', 'Physics', '2023-09-01')
 ON DUPLICATE KEY UPDATE email=email;
 
 -- Insert sample courses

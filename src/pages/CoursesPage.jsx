@@ -8,7 +8,7 @@ import '../styles/DataPage.css';
  * Courses Management Page
  * CRUD operations for course records
  */
-function CoursesPage() {
+function CoursesPage({ quickAction, onActionComplete }) {
   // State management
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +48,16 @@ function CoursesPage() {
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
+
+  // Handle quick action from Dashboard
+  useEffect(() => {
+    if (quickAction === 'create-course') {
+      handleAddCourse();
+      if (onActionComplete) {
+        onActionComplete();
+      }
+    }
+  }, [quickAction]);
 
   /**
    * Fetch all courses from API

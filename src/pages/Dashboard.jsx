@@ -7,7 +7,7 @@ import '../styles/Dashboard.css';
  * Dashboard Page Component
  * Displays summary statistics and overview
  */
-function Dashboard() {
+function Dashboard({ onQuickAction }) {
   // State for dashboard data
   const [stats, setStats] = useState({
     totalStudents: 0,
@@ -116,19 +116,35 @@ function Dashboard() {
       <div className="quick-actions-section">
         <h3 className="section-title">Quick Actions</h3>
         <div className="quick-actions-grid">
-          <div className="quick-action-card">
+          <div 
+            className="quick-action-card" 
+            onClick={() => onQuickAction && onQuickAction('add-student')}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="action-icon">➕</span>
             <span className="action-label">Add New Student</span>
           </div>
-          <div className="quick-action-card">
+          <div 
+            className="quick-action-card"
+            onClick={() => onQuickAction && onQuickAction('create-course')}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="action-icon">📖</span>
             <span className="action-label">Create Course</span>
           </div>
-          <div className="quick-action-card">
+          <div 
+            className="quick-action-card"
+            onClick={() => onQuickAction && onQuickAction('new-registration')}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="action-icon">✍️</span>
             <span className="action-label">New Registration</span>
           </div>
-          <div className="quick-action-card">
+          <div 
+            className="quick-action-card"
+            onClick={() => onQuickAction && onQuickAction('view-reports')}
+            style={{ cursor: 'pointer' }}
+          >
             <span className="action-icon">📊</span>
             <span className="action-label">View Reports</span>
           </div>

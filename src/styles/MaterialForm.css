@@ -1,0 +1,275 @@
+/**
+ * Material Design Form Styles
+ * Modern, clean form styling with Material Design principles
+ */
+
+.material-form {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.material-form-section {
+  margin-bottom: 32px;
+}
+
+.material-form-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color, #4f46e5);
+}
+
+.material-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.material-form-grid.single-column {
+  grid-template-columns: 1fr;
+}
+
+.material-form-field {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.material-form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.material-input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.material-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.material-label .required-indicator {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.material-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #fff;
+  color: var(--text-primary, #1a1a1a);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.material-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.material-input:hover:not(:focus):not(:disabled) {
+  border-color: #9ca3af;
+}
+
+.material-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.material-input.error {
+  border-color: #ef4444;
+}
+
+.material-input.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.material-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.material-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+  padding-right: 40px;
+}
+
+.material-input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.material-input.with-icon {
+  padding-left: 40px;
+}
+
+.material-field-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.875rem;
+  color: #ef4444;
+  animation: slideDown 0.2s ease;
+}
+
+.material-field-error::before {
+  content: '⚠';
+  font-size: 1rem;
+}
+
+.material-field-hint {
+  margin-top: 6px;
+  font-size: 0.813rem;
+  color: #6b7280;
+}
+
+.material-form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.material-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.material-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.material-btn-primary {
+  background-color: var(--primary-color, #4f46e5);
+  color: white;
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.material-btn-primary:hover:not(:disabled) {
+  background-color: #4338ca;
+  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+  transform: translateY(-1px);
+}
+
+.material-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+}
+
+.material-btn-secondary {
+  background-color: #f3f4f6;
+  color: var(--text-primary, #1a1a1a);
+}
+
+.material-btn-secondary:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.material-form-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.material-form-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary, #1a1a1a);
+  margin-bottom: 8px;
+}
+
+.material-form-subtitle {
+  font-size: 0.938rem;
+  color: var(--text-secondary, #666);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .material-form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .material-form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .material-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Loading State */
+.material-btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.material-btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

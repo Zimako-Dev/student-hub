@@ -3,12 +3,13 @@ import { getStudents, createStudent, updateStudent, deleteStudent } from '../ser
 import Modal, { ConfirmModal } from '../components/Modal.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import '../styles/DataPage.css';
+import '../styles/MaterialForm.css';
 
 /**
  * Students Management Page
  * CRUD operations for student records
  */
-function StudentsPage() {
+function StudentsPage({ quickAction, onActionComplete }) {
   // State management
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -23,12 +24,15 @@ function StudentsPage() {
 
   // Form state
   const [formData, setFormData] = useState({
+    student_id: '',
     first_name: '',
     last_name: '',
     email: '',
     phone: '',
     date_of_birth: '',
     address: '',
+    course_of_study: '',
+    enrollment_date: '',
   });
   const [formErrors, setFormErrors] = useState({});
   const [formLoading, setFormLoading] = useState(false);
@@ -49,6 +53,16 @@ function StudentsPage() {
     }
   }, [successMessage]);
 
+  // Handle quick action from Dashboard
+  useEffect(() => {
+    if (quickAction === 'add-student') {
+      handleAddStudent();
+      if (onActionComplete) {
+        onActionComplete();
+      }
+    }
+  }, [quickAction]);
+
   /**
    * Fetch all students from API
    */
@@ -62,11 +76,11 @@ function StudentsPage() {
     } catch (err) {
       // Demo data if API not available
       setStudents([
-        { id: 1, first_name: 'John', last_name: 'Doe', email: 'john@example.com', phone: '555-0101', date_of_birth: '2000-01-15', address: '123 Main St' },
-        { id: 2, first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com', phone: '555-0102', date_of_birth: '1999-05-20', address: '456 Oak Ave' },
-        { id: 3, first_name: 'Mike', last_name: 'Johnson', email: 'mike@example.com', phone: '555-0103', date_of_birth: '2001-03-10', address: '789 Pine Rd' },
-        { id: 4, first_name: 'Sarah', last_name: 'Williams', email: 'sarah@example.com', phone: '555-0104', date_of_birth: '2000-07-22', address: '321 Elm St' },
-        { id: 5, first_name: 'David', last_name: 'Brown', email: 'david@example.com', phone: '555-0105', date_of_birth: '1998-11-30', address: '654 Maple Dr' },
+        { id: 1, student_id: 'STU000001', first_name: 'John', last_name: 'Doe', email: 'john@example.com', phone: '555-0101', date_of_birth: '2000-01-15', address: '123 Main St', course_of_study: 'Computer Science', enrollment_date: '2023-09-01' },
+        { id: 2, student_id: 'STU000002', first_name: 'Jane', last_name: 'Smith', email: 'jane@example.com', phone: '555-0102', date_of_birth: '1999-05-20', address: '456 Oak Ave', course_of_study: 'Business Administration', enrollment_date: '2023-09-01' },
+        { id: 3, student_id: 'STU000003', first_name: 'Mike', last_name: 'Johnson', email: 'mike@example.com', phone: '555-0103', date_of_birth: '2001-03-10', address: '789 Pine Rd', course_of_study: 'Engineering', enrollment_date: '2024-01-15' },
+        { id: 4, student_id: 'STU000004', first_name: 'Sarah', last_name: 'Williams', email: 'sarah@example.com', phone: '555-0104', date_of_birth: '2000-07-22', address: '321 Elm St', course_of_study: 'Mathematics', enrollment_date: '2024-01-15' },
+        { id: 5, student_id: 'STU000005', first_name: 'David', last_name: 'Brown', email: 'david@example.com', phone: '555-0105', date_of_birth: '1998-11-30', address: '654 Maple Dr', course_of_study: 'Physics', enrollment_date: '2023-09-01' },
       ]);
     } finally {
       setLoading(false);
@@ -79,18 +93,49 @@ function StudentsPage() {
   const validateForm = () => {
     const errors = {};
 
+    if (!formData.student_id.trim()) {
+      errors.student_id = 'Student ID is required';
+    } else if (formData.student_id.length < 5) {
+      errors.student_id = 'Student ID must be at least 5 characters';
+    }
+
     if (!formData.first_name.trim()) {
       errors.first_name = 'First name is required';
+    } else if (formData.first_name.length < 2) {
+      errors.first_name = 'First name must be at least 2 characters';
     }
 
     if (!formData.last_name.trim()) {
       errors.last_name = 'Last name is required';
+    } else if (formData.last_name.length < 2) {
+      errors.last_name = 'Last name must be at least 2 characters';
     }
 
     if (!formData.email.trim()) {
       errors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = 'Invalid email format';
+    }
+
+    if (!formData.date_of_birth) {
+      errors.date_of_birth = 'Date of birth is required';
+    } else {
+      const birthDate = new Date(formData.date_of_birth);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear();
+      if (age < 16) {
+        errors.date_of_birth = 'Student must be at least 16 years old';
+      }
+    }
+
+    if (!formData.course_of_study.trim()) {
+      errors.course_of_study = 'Course of study is required';
+    } else if (formData.course_of_study.length < 3) {
+      errors.course_of_study = 'Course of study must be at least 3 characters';
+    }
+
+    if (!formData.enrollment_date) {
+      errors.enrollment_date = 'Enrollment date is required';
     }
 
     if (formData.phone && !/^[\d\-\+\s()]+$/.test(formData.phone)) {
@@ -118,12 +163,15 @@ function StudentsPage() {
   const handleAddStudent = () => {
     setEditingStudent(null);
     setFormData({
+      student_id: '',
       first_name: '',
       last_name: '',
       email: '',
       phone: '',
       date_of_birth: '',
       address: '',
+      course_of_study: '',
+      enrollment_date: new Date().toISOString().split('T')[0], // Default to today
     });
     setFormErrors({});
     setIsFormModalOpen(true);
@@ -135,12 +183,15 @@ function StudentsPage() {
   const handleEditStudent = (student) => {
     setEditingStudent(student);
     setFormData({
+      student_id: student.student_id || '',
       first_name: student.first_name || '',
       last_name: student.last_name || '',
       email: student.email || '',
       phone: student.phone || '',
       date_of_birth: student.date_of_birth || '',
       address: student.address || '',
+      course_of_study: student.course_of_study || '',
+      enrollment_date: student.enrollment_date || '',
     });
     setFormErrors({});
     setIsFormModalOpen(true);
@@ -337,103 +388,230 @@ function StudentsPage() {
         Showing {filteredStudents.length} of {students.length} students
       </div>
 
-      {/* Add/Edit Form Modal */}
+      {/* Add/Edit Form Modal - Material Design */}
       <Modal
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
-        title={editingStudent ? 'Edit Student' : 'Add New Student'}
-        size="medium"
+        title={editingStudent ? 'Edit Student Registration' : 'Student Registration Form'}
+        size="large"
       >
-        <form className="data-form" onSubmit={handleFormSubmit}>
-          <div className="form-row">
-            <div className={`form-group ${formErrors.first_name ? 'has-error' : ''}`}>
-              <label className="form-label">First Name *</label>
-              <input
-                type="text"
-                name="first_name"
-                className="form-input"
-                value={formData.first_name}
-                onChange={handleInputChange}
-                placeholder="Enter first name"
-              />
-              {formErrors.first_name && (
-                <span className="field-error">{formErrors.first_name}</span>
-              )}
-            </div>
-            <div className={`form-group ${formErrors.last_name ? 'has-error' : ''}`}>
-              <label className="form-label">Last Name *</label>
-              <input
-                type="text"
-                name="last_name"
-                className="form-input"
-                value={formData.last_name}
-                onChange={handleInputChange}
-                placeholder="Enter last name"
-              />
-              {formErrors.last_name && (
-                <span className="field-error">{formErrors.last_name}</span>
-              )}
+        <form className="material-form" onSubmit={handleFormSubmit}>
+          {/* Form Header */}
+          <div className="material-form-header">
+            <h3 className="material-form-title">
+              {editingStudent ? 'Update Student Information' : 'Register New Student'}
+            </h3>
+            <p className="material-form-subtitle">
+              Complete all required fields marked with <span style={{color: '#ef4444'}}>*</span>
+            </p>
+          </div>
+
+          {/* Personal Information Section */}
+          <div className="material-form-section">
+            <h4 className="material-form-section-title">Personal Information</h4>
+            <div className="material-form-grid">
+              {/* Student ID */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Student ID <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="student_id"
+                    className={`material-input ${formErrors.student_id ? 'error' : ''}`}
+                    value={formData.student_id}
+                    onChange={handleInputChange}
+                    placeholder="e.g., STU000001"
+                    disabled={formLoading}
+                  />
+                  {formErrors.student_id && (
+                    <div className="material-field-error">{formErrors.student_id}</div>
+                  )}
+                  <div className="material-field-hint">Unique identifier for the student</div>
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Email Address <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    className={`material-input ${formErrors.email ? 'error' : ''}`}
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="student@example.com"
+                    disabled={formLoading}
+                  />
+                  {formErrors.email && (
+                    <div className="material-field-error">{formErrors.email}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* First Name */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    First Name <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="first_name"
+                    className={`material-input ${formErrors.first_name ? 'error' : ''}`}
+                    value={formData.first_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter first name"
+                    disabled={formLoading}
+                  />
+                  {formErrors.first_name && (
+                    <div className="material-field-error">{formErrors.first_name}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Last Name */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Last Name <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="last_name"
+                    className={`material-input ${formErrors.last_name ? 'error' : ''}`}
+                    value={formData.last_name}
+                    onChange={handleInputChange}
+                    placeholder="Enter last name"
+                    disabled={formLoading}
+                  />
+                  {formErrors.last_name && (
+                    <div className="material-field-error">{formErrors.last_name}</div>
+                  )}
+                </div>
+              </div>
+
+              {/* Date of Birth */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Date of Birth <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="date_of_birth"
+                    className={`material-input ${formErrors.date_of_birth ? 'error' : ''}`}
+                    value={formData.date_of_birth}
+                    onChange={handleInputChange}
+                    disabled={formLoading}
+                  />
+                  {formErrors.date_of_birth && (
+                    <div className="material-field-error">{formErrors.date_of_birth}</div>
+                  )}
+                  <div className="material-field-hint">Must be at least 16 years old</div>
+                </div>
+              </div>
+
+              {/* Phone Number */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">Phone Number</label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    className={`material-input ${formErrors.phone ? 'error' : ''}`}
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="555-0123"
+                    disabled={formLoading}
+                  />
+                  {formErrors.phone && (
+                    <div className="material-field-error">{formErrors.phone}</div>
+                  )}
+                  <div className="material-field-hint">Optional contact number</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className={`form-group ${formErrors.email ? 'has-error' : ''}`}>
-            <label className="form-label">Email Address *</label>
-            <input
-              type="email"
-              name="email"
-              className="form-input"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Enter email address"
-            />
-            {formErrors.email && (
-              <span className="field-error">{formErrors.email}</span>
-            )}
-          </div>
+          {/* Academic Information Section */}
+          <div className="material-form-section">
+            <h4 className="material-form-section-title">Academic Information</h4>
+            <div className="material-form-grid">
+              {/* Course of Study */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Course of Study <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="course_of_study"
+                    className={`material-input ${formErrors.course_of_study ? 'error' : ''}`}
+                    value={formData.course_of_study}
+                    onChange={handleInputChange}
+                    placeholder="e.g., Computer Science"
+                    disabled={formLoading}
+                  />
+                  {formErrors.course_of_study && (
+                    <div className="material-field-error">{formErrors.course_of_study}</div>
+                  )}
+                  <div className="material-field-hint">Student's major or program</div>
+                </div>
+              </div>
 
-          <div className="form-row">
-            <div className={`form-group ${formErrors.phone ? 'has-error' : ''}`}>
-              <label className="form-label">Phone Number</label>
-              <input
-                type="tel"
-                name="phone"
-                className="form-input"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="Enter phone number"
-              />
-              {formErrors.phone && (
-                <span className="field-error">{formErrors.phone}</span>
-              )}
+              {/* Enrollment Date */}
+              <div className="material-form-field">
+                <div className="material-input-wrapper">
+                  <label className="material-label">
+                    Enrollment Date <span className="required-indicator">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="enrollment_date"
+                    className={`material-input ${formErrors.enrollment_date ? 'error' : ''}`}
+                    value={formData.enrollment_date}
+                    onChange={handleInputChange}
+                    disabled={formLoading}
+                  />
+                  {formErrors.enrollment_date && (
+                    <div className="material-field-error">{formErrors.enrollment_date}</div>
+                  )}
+                  <div className="material-field-hint">Date student enrolled in program</div>
+                </div>
+              </div>
+
+              {/* Address */}
+              <div className="material-form-field full-width">
+                <div className="material-input-wrapper">
+                  <label className="material-label">Address</label>
+                  <textarea
+                    name="address"
+                    className={`material-input material-textarea ${formErrors.address ? 'error' : ''}`}
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Enter full address"
+                    rows="3"
+                    disabled={formLoading}
+                  />
+                  {formErrors.address && (
+                    <div className="material-field-error">{formErrors.address}</div>
+                  )}
+                  <div className="material-field-hint">Optional residential address</div>
+                </div>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Date of Birth</label>
-              <input
-                type="date"
-                name="date_of_birth"
-                className="form-input"
-                value={formData.date_of_birth}
-                onChange={handleInputChange}
-              />
-            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Address</label>
-            <textarea
-              name="address"
-              className="form-input form-textarea"
-              value={formData.address}
-              onChange={handleInputChange}
-              placeholder="Enter address"
-              rows="3"
-            />
-          </div>
-
-          <div className="form-actions">
+          {/* Form Actions */}
+          <div className="material-form-actions">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="material-btn material-btn-secondary"
               onClick={() => setIsFormModalOpen(false)}
               disabled={formLoading}
             >
@@ -441,10 +619,10 @@ function StudentsPage() {
             </button>
             <button
               type="submit"
-              className="btn btn-primary"
+              className={`material-btn material-btn-primary ${formLoading ? 'loading' : ''}`}
               disabled={formLoading}
             >
-              {formLoading ? 'Saving...' : editingStudent ? 'Update Student' : 'Add Student'}
+              {!formLoading && (editingStudent ? '✓ Update Student' : '✓ Register Student')}
             </button>
           </div>
         </form>
