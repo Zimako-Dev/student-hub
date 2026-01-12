@@ -1,0 +1,77 @@
+/* Registrations Page Specific Styles */
+
+.registration-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.stat-mini-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-mini-icon {
+  font-size: 1.75rem;
+}
+
+.stat-mini-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-mini-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-mini-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Course Cell */
+.course-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.course-name {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Registration Summary in Modal */
+.registration-summary {
+  padding: var(--spacing-md);
+  background-color: #E8F5E9;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--success);
+}
+
+.registration-summary h4 {
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: 1rem;
+  color: var(--success);
+}
+
+.registration-summary p {
+  margin: var(--spacing-xs) 0;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .registration-stats {
+    grid-template-columns: 1fr;
+  }
+}
